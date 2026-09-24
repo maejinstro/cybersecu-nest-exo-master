@@ -12,8 +12,8 @@ export class ItemService {
     private readonly itemRepository: Repository<Item>,
   ) {}
 
-  create(createItemDto: CreateItemDto) {
-    return this.itemRepository.save(createItemDto);
+  create(createItemDto: CreateItemDto, userId: number) {
+    return this.itemRepository.save({ ...createItemDto, userId });
   }
 
   findAll() {
