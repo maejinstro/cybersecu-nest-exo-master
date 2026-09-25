@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { User } from './entities/user.entity.js';
+
+const SALT_ROUNDS = 10;
 
 @Injectable()
 export class UserService {
@@ -12,15 +15,10 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-  // Sélectionne les champs autorisés à l'inscription.
-  // Le rôle est imposé côté serveur : le client ne peut pas choisir "admin".
-  const user = this.userRepository.create({
-    username: createUserDto.username,
-    email: createUserDto.email,
-    password: createUserDto.password,
-    role: 'user',
-  });
+  async create(createUserDto: CreateUserDto) {
+    const hashedPassword = await bcrypt.hash(createUserDto.password, SALT_ROUNDS);
+    return this.userRepository.save({ ...createUserDto, password: hashedPassword });
+  }
 
   // Enregistre l'entité et retourne notamment son identifiant généré.
   return this.userRepository.save(user);

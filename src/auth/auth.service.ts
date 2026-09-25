@@ -4,6 +4,9 @@ import { UserService } from '../user/user.service.js';
 import { RegisterAuthDto } from './dto/register-auth.dto.js';
 import { LoginAuthDto } from './dto/login-auth.dto.js';
 import type { User } from '../user/entities/user.entity.js';
+import bcrypt from 'bcrypt';
+
+
 
 // Génération du token adaptée de la documentation officielle :
 // https://docs.nestjs.com/security/authentication
@@ -36,19 +39,28 @@ export class AuthService {
     const user = await this.userService.create(registerAuthDto);
 
     return this.generateToken(user);
+  
+
+  async register(registerAuthDto: RegisterAuthDto) {
+
+    registerAuthDto.password = await bcrypt.hash(registerAuthDto.password, 10)
+    
+    return this.userService.create(registerAuthDto);
   }
+
 
   async login(loginAuthDto: LoginAuthDto) {
     const user = await this.userService.findByEmail(loginAuthDto.email);
 
-    // TODO intégration avec Jean : remplacer la comparaison actuelle
-    // par bcrypt.compare(), avec un mot de passe stocké sous forme de hash.
-    // Le même message couvre l'email inconnu et le mauvais mot de passe.
-    if (!user || user.password !== loginAuthDto.password) {
+    if (!user) {
       throw new UnauthorizedException('Email ou mot de passe incorrect');
     }
 
-    // Un token est émis uniquement après vérification des identifiants.
-    return this.generateToken(user);
+    if (await bcrypt.compare(loginAuthDto.password, user.password)) {
+      throw new UnauthorizedException('Email ou mot de passe incorrect');
+    }
+    
+        const access_token = await this.jwtService.signAsync({ sub: user.id, role: user.role });
+    return { access_token, user };
   }
 }
