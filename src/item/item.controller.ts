@@ -16,6 +16,7 @@ import { ItemService } from './item.service.js';
 import { CreateItemDto } from './dto/create-item.dto.js';
 import { UpdateItemDto } from './dto/update-item.dto.js';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('item')
 @UseGuards(JwtAuthGuard)

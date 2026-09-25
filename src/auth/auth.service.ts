@@ -15,7 +15,7 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   // Méthode commune à l'inscription et à la connexion.
   // Pick limite les propriétés nécessaires à l'identifiant et au rôle.
@@ -36,18 +36,11 @@ export class AuthService {
 
   async register(registerAuthDto: RegisterAuthDto) {
     // Attend l'enregistrement pour disposer de l'identifiant de l'utilisateur.
+    registerAuthDto.password = await bcrypt.hash(registerAuthDto.password, 10)
     const user = await this.userService.create(registerAuthDto);
 
     return this.generateToken(user);
-  
-
-  async register(registerAuthDto: RegisterAuthDto) {
-
-    registerAuthDto.password = await bcrypt.hash(registerAuthDto.password, 10)
-    
-    return this.userService.create(registerAuthDto);
   }
-
 
   async login(loginAuthDto: LoginAuthDto) {
     const user = await this.userService.findByEmail(loginAuthDto.email);
@@ -59,8 +52,8 @@ export class AuthService {
     if (await bcrypt.compare(loginAuthDto.password, user.password)) {
       throw new UnauthorizedException('Email ou mot de passe incorrect');
     }
-    
-        const access_token = await this.jwtService.signAsync({ sub: user.id, role: user.role });
+
+    const access_token = await this.jwtService.signAsync({ sub: user.id, role: user.role });
     return { access_token, user };
   }
 }
