@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
+import type { Request } from 'express';
 import { UserService } from './user.service.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
@@ -27,13 +40,27 @@ export class UserController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() req: Request) {
+    await this.checkOwnership(+id, req);
     return this.userService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string, @Req() req: Request) {
+    await this.checkOwnership(+id, req);
     return this.userService.remove(+id);
+  }
+
+  private async checkOwnership(id: number, req: Request) {
+    const user = await this.userService.findOne(id);
+    if (!user) {
+      throw new NotFoundException('Utilisateur introuvable');
+    }
+    const isSelf = user.id === req.user!.sub;
+    const isAdmin = req.user!.role === 'admin';
+    if (!isSelf && !isAdmin) {
+      throw new ForbiddenException("Vous n'avez pas le droit de modifier ce compte");
+    }
   }
 }
