@@ -13,16 +13,16 @@ export class Contact {
     @Column({ type: 'text' })
     message: string;
     
-    @Column({ type: 'text' })
+    @Column({ type: 'text', default: 'aucun message'})
     internalMessage: string;
 
-    @Column({ type: 'text' })
+    @Column({ type: 'text', default: 'in progess'})
     status: string;
 
     @CreateDateColumn()
     createdAt: Date;
 
-    @Column({ type: 'number', nullable: true })
+    @Column({ type: 'number', nullable: false })
     userId: number;
 
     @ManyToOne(() => User, (user) => user.items, { onDelete: 'CASCADE' })
