@@ -22,6 +22,12 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
+  @Throttle({
+  default: {
+    limit: 10, //nombre de requêtes autorisées
+    ttl: 60000,//exprimer en milisecondes, donc 60000 = 1 minute
+  },
+})
   @Post()
   create(@Body() createItemDto: CreateItemDto, @Req() req: Request) {
     return this.itemService.create(createItemDto, req.user!.sub);
@@ -36,6 +42,13 @@ export class ItemController {
   findOne(@Param('id') id: string) {
     return this.itemService.findOne(+id);
   }
+
+  @Throttle({
+  default: {
+    limit: 20,
+    ttl: 60000,
+  },
+})
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto, @Req() req: Request) {

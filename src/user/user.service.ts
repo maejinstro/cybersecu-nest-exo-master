@@ -20,6 +20,9 @@ export class UserService {
     return this.userRepository.save({ ...createUserDto, password: hashedPassword });
   }
 
+  // Enregistre l'entité et retourne notamment son identifiant généré.
+  return this.userRepository.save(user);
+}
   findAll() {
     return this.userRepository.find();
   }
