@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import {ThrottlerModule, ThrottlerGuard} from '@nestjs/throttler';
 
@@ -12,13 +13,18 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
+
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5000,
-      username: 'postgres',
-      password: '',
-      database: '',
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
       autoLoadEntities: true,
       synchronize: true,
     }),
@@ -35,6 +41,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     AuthModule,
     ItemModule,
   ],
+
   controllers: [AppController],
   providers: [
     AppService,
@@ -44,4 +51,5 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     },
   ],
 })
+
 export class AppModule {}
