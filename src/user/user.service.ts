@@ -13,9 +13,18 @@ export class UserService {
   ) {}
 
   create(createUserDto: CreateUserDto) {
-    return this.userRepository.save(createUserDto);
-  }
+  // Sélectionne les champs autorisés à l'inscription.
+  // Le rôle est imposé côté serveur : le client ne peut pas choisir "admin".
+  const user = this.userRepository.create({
+    username: createUserDto.username,
+    email: createUserDto.email,
+    password: createUserDto.password,
+    role: 'user',
+  });
 
+  // Enregistre l'entité et retourne notamment son identifiant généré.
+  return this.userRepository.save(user);
+}
   findAll() {
     return this.userRepository.find();
   }
