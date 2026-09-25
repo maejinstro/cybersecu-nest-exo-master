@@ -9,6 +9,7 @@ import { AppService } from './app.service.js';
 import { UserModule } from './user/user.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { ItemModule } from './item/item.module.js';
+import { ContactModule } from './contact/contact.module.js';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ItemModule } from './item/item.module.js';
 
     AuthModule,
     ItemModule,
+    ContactModule,
   ],
 
   controllers: [AppController],
